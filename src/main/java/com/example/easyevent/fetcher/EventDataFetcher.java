@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.easyevent.custom.AuthContext;
 import com.example.easyevent.entity.EventEntity;
 import com.example.easyevent.entity.UserEntity;
+import com.example.easyevent.fetcher.dataloader.CreatorsDataLoader;
 import com.example.easyevent.mapper.EventEntityMapper;
 import com.example.easyevent.mapper.UserEntityMapper;
 import com.example.easyevent.type.Event;
@@ -14,8 +15,10 @@ import com.netflix.graphql.dgs.context.DgsContext;
 import graphql.schema.DataFetchingEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.dataloader.DataLoader;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -50,11 +53,20 @@ public class EventDataFetcher {
         return newEvent;
     }
 
+//    @DgsData(parentType = "Event", field = "creator")
+//    public User creator(DgsDataFetchingEnvironment dfe) {
+//        Event event = dfe.getSource();
+//        UserEntity userEntity = userEntityMapper.selectById(event.getCreatorId());
+//        User user = User.fromEntity(userEntity);
+//        return user;
+//    }
+
     @DgsData(parentType = "Event", field = "creator")
-    public User creator(DgsDataFetchingEnvironment dfe) {
+    public CompletableFuture<User> creator(DgsDataFetchingEnvironment dfe) {
         Event event = dfe.getSource();
-        UserEntity userEntity = userEntityMapper.selectById(event.getCreatorId());
-        User user = User.fromEntity(userEntity);
-        return user;
+        log.info("Fetching creator wit id: {}", event.getCreatorId());
+        DataLoader<Integer, User> dataLoader = dfe.getDataLoader(CreatorsDataLoader.class);
+
+        return dataLoader.load(event.getCreatorId());
     }
 }

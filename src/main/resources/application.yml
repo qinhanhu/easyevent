@@ -1,5 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/easyevent
-    username: easyevent
-    password: 12345
+#    url: jdbc:postgresql://localhost:5432/easyevent
+    url: jdbc:postgresql://database-easyevent.c6opt8v3rbuz.us-east-1.rds.amazonaws.com:5432/easyevent
+    username: postgres
+    password: qinhanhu12345
