@@ -1,5 +1,7 @@
 package com.example.easyevent.fetcher;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.easyevent.custom.AuthContext;
 import com.example.easyevent.entity.BookingEntity;
 import com.example.easyevent.entity.EventEntity;
@@ -28,8 +30,13 @@ public class BookingDataFetcher {
     private final UserEntityMapper userEntityMapper;
 
     @DgsQuery
-    public List<Booking> bookings() {
-        List<Booking> bookings = bookingEntityMapper.selectList(null)
+    public List<Booking> bookings(DgsDataFetchingEnvironment dfe) {
+        AuthContext authContext = DgsContext.getCustomContext(dfe);
+        authContext.ensureAuthenticated();
+        LambdaQueryWrapper<BookingEntity> lambda = Wrappers.lambdaQuery();
+        lambda.eq(BookingEntity::getUserId, authContext.getUserEntity().getId());
+        List<BookingEntity> bookingEntityList = bookingEntityMapper.selectList(lambda);
+        List<Booking> bookings = bookingEntityList
                 .stream()
                 .map(Booking::fromEntity)
                 .collect(Collectors.toList());
