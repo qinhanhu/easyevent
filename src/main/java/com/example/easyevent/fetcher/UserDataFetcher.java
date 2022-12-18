@@ -27,9 +27,7 @@ public class UserDataFetcher {
     private final PasswordEncoder passwordEncoder;
 
     @DgsQuery
-    public List<User> users(DataFetchingEnvironment dfe) {
-        AuthContext authContext = DgsContext.getCustomContext(dfe);
-        authContext.ensureAuthenticated();
+    public List<User> users() {
         List<UserEntity> userEntityList = userEntityMapper.selectList(null);
         List<User> userList = userEntityList.stream()
                 .map(User::fromEntity)
@@ -38,9 +36,15 @@ public class UserDataFetcher {
     }
 
     @DgsMutation
-    public User createUser(@InputArgument UserInput userInput) {
+    public CreateUserResponse createUser(@InputArgument UserInput userInput) {
 
-        ensureUserNotExists(userInput);
+        if (ensureUserNotExists(userInput) == 0) {
+            return new CreateUserResponse()
+                    .setBaseResponse(
+                            new BaseResponse()
+                                    .setCode(402)
+                                    .setMsg("Account exists"));
+        }
 
         UserEntity newUserEntity = new UserEntity();
         newUserEntity.setEmail(userInput.getEmail());
@@ -51,28 +55,52 @@ public class UserDataFetcher {
         User newUser = User.fromEntity(newUserEntity);
         newUser.setPassword(null);
 
-        return newUser;
+        return new CreateUserResponse()
+                .setUser(newUser)
+                .setBaseResponse(
+                        new BaseResponse()
+                                .setCode(200)
+                                .setMsg("Success"));
     }
+
+    @DgsMutation
+    public BaseResponse deleteUser(@InputArgument String userId) {
+        userEntityMapper.deleteById(Integer.parseInt(userId));
+        return new BaseResponse().setCode(200).setMsg("Success");
+    }
+
+
 
     @DgsQuery
     public AuthData login(@InputArgument LoginInput loginInput) {
         UserEntity userEntity = this.findUserByEmail(loginInput.getEmail());
         if (userEntity == null) {
-            throw new RuntimeException("使用该email地址的用户不存在！");
+            // throw new RuntimeException("使用该email地址的用户不存在！");
+            log.info("Account " + loginInput.getEmail() + " doesn't exists！");
+            return new AuthData()
+                    .setBaseResponse(new BaseResponse()
+                    .setCode(401)
+                    .setMsg("Account doesn't exist, please sign up first"));
         }
         boolean match = passwordEncoder.matches(loginInput.getPassword(), userEntity.getPassword());
         if (!match) {
-            throw new RuntimeException("密码不正确！");
+//            throw new RuntimeException("密码不正确！");
+            log.info(loginInput.getEmail() + " Password doesn't match");
+            return new AuthData()
+                    .setBaseResponse(new BaseResponse()
+                            .setCode(401)
+                            .setMsg("Password doesn't match"));
         }
 
         String token = TokenUtil.signToken(userEntity.getId(), 1);
 
-        AuthData authData = new AuthData()
+        return new AuthData()
                 .setUserId(userEntity.getId())
                 .setToken(token)
-                .setTokenExpiration(1);
-
-        return authData;
+                .setTokenExpiration(1)
+                .setBaseResponse(new BaseResponse()
+                        .setCode(200)
+                        .setMsg("Success"));
     }
 
     @DgsData(parentType = "User", field = "createdEvents")
@@ -87,12 +115,14 @@ public class UserDataFetcher {
         return eventList;
     }
 
-    private void ensureUserNotExists(UserInput userInput) {
+    private int ensureUserNotExists(UserInput userInput) {
         QueryWrapper<UserEntity> queryWrapper = new QueryWrapper();
         queryWrapper.lambda().eq(UserEntity::getEmail, userInput.getEmail());
         if (userEntityMapper.selectCount(queryWrapper) >= 1) {
-            throw new RuntimeException("该email地址已经被使用");
+            log.info("Account exists");
+            return 0;
         }
+        return 1;
     }
 
     private UserEntity findUserByEmail(String email) {

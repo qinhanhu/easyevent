@@ -1,15 +1,45 @@
 type Query {
-    events: [Event!]!
+    events(filterEventInput: FilterEventInput!): [Event]
     users: [User!]!
     login(loginInput: LoginInput!): AuthData!
-    bookings: [Booking!]
+    bookings: [Booking]
 }
 
 type Mutation {
     createEvent(eventInput: EventInput!): Event!
-    createUser(userInput: UserInput!): User!
+    deleteEvent(eventId: ID!): BaseResponse!
+    updateEvent(updateEventInput: UpdateEventInput!): UpdateEventResponse!
+    createUser(userInput: UserInput!): CreateUserResponse!
+    deleteUser(userId: ID!): BaseResponse!
     bookEvent(eventId: ID!): Booking!
     cancelBooking(bookingId: ID!): Event!
+
+}
+
+type UpdateEventResponse {
+    event: Event!
+    baseResponse: BaseResponse!
+}
+input UpdateEventInput {
+    id: ID!
+    title: String
+    description: String
+    price: Float
+    date: String
+}
+
+input FilterEventInput {
+    title: String
+    description: String
+    minPrice: Float
+    maxPrice: Float
+    dateFrom: String
+    dateTo: String
+}
+
+type BaseResponse {
+    code: Int!
+    msg: String!
 }
 
 input EventInput {
@@ -45,10 +75,16 @@ type User {
     createdEvents: [Event!]
 }
 
+type CreateUserResponse {
+    user: User!
+    baseResponse: BaseResponse!
+}
+
 type AuthData {
-    userId: ID!
-    token: String!
-    tokenExpiration: Int!
+    userId: ID
+    token: String
+    tokenExpiration: Int
+    baseResponse: BaseResponse!
 }
 
 type Booking {
