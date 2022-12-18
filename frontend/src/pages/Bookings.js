@@ -45,6 +45,7 @@ class BookingsPage extends Component {
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
+          window.alert("Server Failed")
           throw new Error("Failed!");
         }
         return res.json();
@@ -87,6 +88,7 @@ class BookingsPage extends Component {
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
+          window.alert("Server Failed")
           throw new Error("Failed!");
         }
         return res.json();

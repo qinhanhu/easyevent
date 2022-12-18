@@ -4,3 +4,6 @@ spring:
     url: jdbc:postgresql://database-easyevent.c6opt8v3rbuz.us-east-1.rds.amazonaws.com:5432/easyevent
     username: postgres
     password: qinhanhu12345
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

@@ -37,6 +37,10 @@ class AuthPage extends Component {
                 userId,
                 token,
                 tokenExpiration
+                baseResponse {
+                  msg
+                  code
+                  }
             }
         }
         `,
@@ -54,8 +58,14 @@ class AuthPage extends Component {
                         email: $email,
                         password: $password
                     }) {
+                        user {
                         id
                         email
+                        }
+                        baseResponse {
+                          msg
+                          code
+                        }
                     }
                 }
               `,
@@ -77,19 +87,34 @@ class AuthPage extends Component {
     })
       .then((res) => {
         if (res.status !== 200 && res.status !== 201) {
+          window.alert("Server Failed")
           throw new Error("Failed!");
         }
         return res.json();
       })
       .then((resData) => {
         console.log(resData);
-        if (resData.data.login && resData.data.login.token) {
-          this.context.login(
-            resData.data.login.token,
-            resData.data.login.userId,
-            resData.data.login.tokenExpiration
-          );
+        if (resData.data.login) {
+          if (resData.data.login.baseResponse.code !== 200) {
+            window.alert(resData.data.login.baseResponse.msg)
+          }
+          if (resData.data.login && resData.data.login.token) {
+            this.context.login(
+                resData.data.login.token,
+                resData.data.login.userId,
+                resData.data.login.tokenExpiration
+            );
+          }
         }
+        if (resData.data.createUser) {
+          if (resData.data.createUser.baseResponse.code === 200) {
+            window.alert("Successfully Signed Up, Please Switch to Log In!")
+          }
+          else {
+            window.alert(resData.data.createUser.baseResponse.msg)
+          }
+        }
+
       })
       .catch((err) => {
         console.log(err);
