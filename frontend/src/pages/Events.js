@@ -125,19 +125,19 @@ class EventsPage extends Component {
     this.setState({ isLoading: true });
     const requestBody = {
       query: `
-        query {
-            events {
+          query {
+            events(filterEventInput:{
+            }) {
+              id
+              title
+              description
+              price
+              date
+              creator{
                 id
-                title
-                description
-                date
-                price
-                creator {
-                  id
-                  email
-                }
+              }
             }
-        }
+          }
         `,
     };
 
