@@ -37,7 +37,7 @@ public class EventDataFetcher {
                 .like(filterEventInput.getDescription() != null, EventEntity::getDescription, filterEventInput.getDescription())
                 .ge(filterEventInput.getMinPrice() != null, EventEntity::getPrice, filterEventInput.getMinPrice())
                 .le(filterEventInput.getMaxPrice() != null, EventEntity::getPrice, filterEventInput.getMaxPrice())
-                .ge(filterEventInput.getDataFrom() != null, EventEntity::getDate,filterEventInput.getDataFrom())
+                .ge(filterEventInput.getDateFrom() != null, EventEntity::getDate,filterEventInput.getDateFrom())
                 .le(filterEventInput.getDateTo() != null, EventEntity::getDate,filterEventInput.getDateTo());
 
 

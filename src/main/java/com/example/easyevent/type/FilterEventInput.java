@@ -10,6 +10,6 @@ public class FilterEventInput {
     private String description;
     private Float minPrice;
     private Float maxPrice;
-    private Date dataFrom;
+    private Date dateFrom;
     private Date dateTo;
 }
