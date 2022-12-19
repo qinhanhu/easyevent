@@ -37,6 +37,8 @@ npm start
 
 Now you are able to open http://localhost:3000/auth and see the UI.
 
+This Demo used AWS RDS PostgreSQL as a cloud database, you don't need to install DB in your local enviroment.
+
 
 ## Tech
 
