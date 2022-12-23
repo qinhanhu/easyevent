@@ -17,7 +17,12 @@
 
 ## Getting started
 
-EasyEvent requires [Maven](https://maven.apache.org/what-is-maven.html) to run.
+EasyEvent requires [Maven](https://maven.apache.org/what-is-maven.html) and [Node.js](https://nodejs.org/en/) to run.<br>
+On MacOS, you can install them using brew.
+```shell
+brew install maven
+brew install node
+```
 
 First, run Spring Boot service. - Backend
 ```sh
